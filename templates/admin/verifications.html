@@ -1,0 +1,36 @@
+{% extends "base.html" %} {% block title %}身份审核{% endblock %} {% block content %}
+<h2>身份审核</h2>
+<table class="table table- striped">
+    <thead>
+        <tr>
+            <th>用户名</th>
+            <th>昵称</th>
+            <th>学位</th>
+            <th>学校</th>
+            <th>入学年份</th>
+            <th>毕业年份</th>
+            <th>学生证</th>
+            <th>操作</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for u in verifications %}
+        <tr>
+            <td>{{ u.username }}</td>
+            <td>{{ u.nickname or u.username }}</td>
+            <td>{{ u.get('degree', '') }}</td>
+            <td>{{ u.get('school', '') }}</td>
+            <td>{{ u.get('enrollment_year', '') }}</td>
+            <td>{{ u.get('graduation_year', '') }}</td>
+            <td>{% if u.get('student_id_image') %}<a href="{{ url_for('static', filename='uploads/' + u.student_id_image) }}" target="_blank">查看</a>{% else %}无{% endif %}</td>
+            <td>
+                <a href="{{ url_for('admin_verify_user', user_id=u.id, action='approve') }}" class="btn btn-sm btn-success">通过</a>
+                <a href="{{ url_for('admin_verify_user', user_id=u.id, action='reject') }}" class="btn btn-sm btn-danger">拒绝</a>
+            </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="8" class="text-center">暂无待审核申请</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

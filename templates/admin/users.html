@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}用户管理{% endblock %}
+{% block content %}
+<h2><i class="fas fa-users"></i> 用户管理</h2>
+<table class="table table-hover mt-3">
+    <thead>
+        <tr><th>用户名</th><th>邮箱</th><th>角色</th><th>注册时间</th><th>操作</th></tr>
+    </thead>
+    <tbody>
+        {% for u in users %}
+        <tr>
+            <td>{{ u.username }}</td>
+            <td>{{ u.email }}</td>
+            <td><span class="badge bg-{{ 'danger' if u.role == 'admin' else 'warning' if u.role == 'moderator' else 'secondary' }}">{{ u.role }}</span></td>
+            <td>{{ u.created_at[:10] }}</td>
+            <td>
+                {% if u.role == 'user' %}
+                <form method="post" action="{{ url_for('admin_set_role', user_id=u.id, role='moderator') }}" style="display:inline">
+                    <button type="submit" class="btn btn-sm btn-outline-warning">设为审核员</button>
+                </form>
+                {% elif u.role == 'moderator' %}
+                <form method="post" action="{{ url_for('admin_set_role', user_id=u.id, role='user') }}" style="display:inline">
+                    <button type="submit" class="btn btn-sm btn-outline-secondary">取消审核员</button>
+                </form>
+                {% endif %}
+                {% if u.role != 'admin' %}
+                <form method="post" action="{{ url_for('admin_delete_user', user_id=u.id) }}" style="display:inline">
+                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm("确认删除?")">删除</button>
+                </form>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

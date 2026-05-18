@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}公告管理{% endblock %}
+{% block content %}
+<h2><i class="fas fa-bullhorn"></i> 公告管理</h2>
+<a href="{{ url_for('admin_notice_create') }}" class="btn btn-primary mb-3"><i class="fas fa-plus"></i> 发布新公告</a>
+<table class="table">
+    <thead><tr><th>标题</th><th>发布时间</th><th>操作</th></tr></thead>
+    <tbody>
+        {% for n in notices %}
+        <tr>
+            <td>{{ n.title }}</td>
+            <td>{{ n.created_at[:10] }}</td>
+            <td>
+                <form method="post" action="{{ url_for('admin_notice_delete', notice_id=n.id) }}" style="display:inline">
+                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm("确认删除?")">删除</button>
+                </form>
+            </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="3" class="text-center">暂无公告</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

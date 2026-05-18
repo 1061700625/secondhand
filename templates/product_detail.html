@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+{% block title %}{{ product.title }}{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-7">
+        {% if product.product_images %}
+        <div id="productCarousel" class="carousel slide shadow-sm rounded" data-bs-ride="carousel">
+            <div class="carousel-inner bg-light rounded">
+                {% for img in product.product_images %}
+                <div class="carousel-item {% if loop.first %}active{% endif %}">
+                    <img src="{{ url_for('static', filename=img) }}" class="d-block w-100" alt="{{ product.title }}" style="max-height: 500px; object-fit: contain;">
+                </div>
+                {% endfor %}
+            </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#productCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon bg-dark rounded-circle p-3"></span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#productCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon bg-dark rounded-circle p-3"></span>
+            </button>
+        </div>
+        {% elif product.cover_image %}
+        <img src="{{ url_for('static', filename=product.cover_image) }}" class="img-fluid rounded shadow-sm" alt="{{ product.title }}">
+        {% else %}
+        <div class="bg-secondary text-white text-center py-5 rounded">暂无图片</div>
+        {% endif %}
+    </div>
+    <div class="col-5">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <h3 class="card-title mb-3">{{ product.title }}</h3>
+                <p class="text-danger h3 mb-3">¥{{ product.price }}</p>
+                <div class="d-flex align-items-center mb-2">
+                    <span class="text-muted me-2">类别：</span>
+                    <span class="badge bg-secondary">{{ product.category }}</span>
+                </div>
+                <p class="mb-2"><strong>卖家：</strong>{% if seller %}<a href="{{ url_for('user_profile', user_id=product.user_id) }}" class="text-decoration-none">{{ seller.username }}</a>{% else %}未知{% endif %}</p>
+                <p class="text-muted small">发布于：{{ product.created_at[:10] }}</p>
+                {% if current_user and current_user.id != product.user_id %}
+                <a href="{{ url_for('message_send', receiver_id=product.user_id) }}" class="btn btn-primary w-100 mb-2">
+                    <i class="fas fa-envelope me-1"></i>私信卖家
+                </a>
+                {% endif %}
+                {% if current_user and current_user.id == product.user_id %}
+                <div class="d-flex gap-2">
+                    <a href="{{ url_for('product_edit', product_id=product.id) }}" class="btn btn-outline-primary flex-grow-1">编辑</a>
+                    {% if product.status == 'approved' %}
+                    <form method="post" action="{{ url_for('product_archive', product_id=product.id) }}" style="display:inline">
+                        <button type="submit" class="btn btn-outline-warning" onclick="return confirm('确认下架?')">下架</button>
+                    </form>
+                    {% endif %}
+                    <form method="post" action="{{ url_for('product_delete', product_id=product.id) }}" style="display:inline">
+                        <button type="submit" class="btn btn-outline-danger" onclick="return confirm('确认删除?')">删除</button>
+                    </form>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title mb-3"><i class="fas fa-info-circle text-primary me-2"></i>商品详情</h5>
+                <div class="text-secondary" style="line-height: 1.8;">{{ product.description|safe }}</div>
+            </div>
+        </div>
+        <!-- Report Button -->
+        <div class="mt-3">
+            <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#reportModal">
+                <i class="fas fa-flag"></i> 举报此商品
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <h5 class="mb-3"><i class="fas fa-comments text-primary me-2"></i>评论</h5>
+        {% if current_user %}
+        <form method="post" action="{{ url_for('product_comment', product_id=product.id) }}" class="mb-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-3">
+                    <textarea class="form-control border-0 shadow-none" name="content" rows="3" placeholder="发表你的看法..." style="resize: none;" required></textarea>
+                    <div class="d-flex justify-content-end mt-2">
+                        <button type="submit" class="btn btn-primary btn-sm px-4 rounded-pill">
+                            <i class="fas fa-paper-plane me-1"></i>发表评论
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+        {% else %}
+        <div class="alert alert-info">
+            <a href="{{ url_for('login') }}">登录</a>后发表评论
+        </div>
+        {% endif %}
+        {% if comments %}
+        <div class="comments-list">
+            {% for comment in comments %}
+            {% if not comment.parent_id or comment.parent_id == '' %}
+            {% include 'comment_item.html' %}
+            {% endif %}
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-muted">暂无评论，快来抢沙发吧~</p>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Report Modal -->
+<div class="modal fade" id="reportModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">举报商品</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('report_product', product_id=product.id) }}">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">举报原因</label>
+                        <select name="reason" class="form-select" required>
+                            <option value="">请选择原因</option>
+                            <option value="商家伪装">商家伪装成个人卖家</option>
+                            <option value="虚假商品">商品信息不实</option>
+                            <option value="违禁品">发布违禁商品</option>
+                            <option value="侵权商品">侵犯知识产权</option>
+                            <option value="其他">其他问题</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">详细说明</label>
+                        <textarea name="detail" class="form-control" rows="3" placeholder="请详细描述问题..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="submit" class="btn btn-danger">提交举报</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

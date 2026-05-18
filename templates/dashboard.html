@@ -1,0 +1,17 @@
+{% extends "base.html" %} {% block title %}个人中心{% endblock %} {% block content %}
+<div class="row">    <div class="col-3">        <div class="card">            <div class="card-body">
+                <h5>{{ current_user.username }}</h5>
+                {% if current_user.nickname %}<p><small>昵称: {{ current_user.nickname }}</small></p>{% endif %}
+                {% if current_user.intro %}<p><small>{{ current_user.intro[:50] }}{% if current_user.intro|length > 50 %}...{% endif %}</small></p>{% endif %}
+                <p class="text-{{ 'success' if current_user.role == 'admin' else 'primary' if current_user.role == 'moderator' else 'muted' }}">
+                    角色: {{ current_user.role }}
+                </p>
+                <p><small>注册时间: {{ current_user.created_at[:10] }}</small></p>
+                <a href="{{ url_for('profile_edit') }}" class="btn btn-sm btn-outline-primary w-100 mt-2">编辑资料</a>            </div>        </div>
+    </div>
+    <div class="col-9">        <h4>我的商品</h4>        {% if my_products %}        <table class="table">            <thead>                <tr>                    <th>标题</th>                    <th>价格</th>                    <th>状态</th>                    <th>操作</th>                </tr>            </thead>            <tbody>                {% for p in my_products %}                <tr>                    <td><a href="{{ url_for('product_detail', product_id=p.id) }}">{{ p.title }}</a></td>                    <td>¥{{ p.price }}</td>                    <td>                        {% if p.status == 'pending' %}<span class="badge bg-warning">待审核</span>                        {% elif p.status == 'approved' %}<span class="badge bg-success">已通过</span>
+                        {% elif p.status == 'rejected' %}<span class="badge bg-danger">已拒绝</span>
+                        {% elif p.status == 'archived' %}<span class="badge bg-secondary">已下架</span>                        {% endif %}                    </td>
+                    <td>                        {% if p.status == 'approved' %}                        <a href="{{ url_for('product_edit', product_id=p.id) }}" class="btn btn-sm btn-outline-primary">编辑</a>
+                        <form method="post" action="{{ url_for('product_archive', product_id=p.id) }}" style="display:inline">                            <button type="submit" class="btn btn-sm btn-outline-warning" onclick="return confirm('确认下架?')">下架</button>                        </form>                        {% endif %}                        {% if p.status != 'deleted' %}                        <form method="post" action="{{ url_for('product_delete', product_id=p.id) }}" style="display:inline">                            <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('确认删除?')">删除</button>                        </form>                        {% endif %}                    </td>                </tr>                {% endfor %}            </tbody>        </table>        {% else %}        <p>您还没有发布商品，<a href="{{ url_for('product_create') }}">去发布</a></p>        {% endif %}    </div></div>
+{% endblock %}

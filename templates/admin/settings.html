@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}系统设置{% endblock %}
+{% block content %}
+<h2><i class="fas fa-cogs"></i> 系统设置</h2>
+<div class="row">
+    <div class="col-12 col-md-8">
+        <form method="post">
+            <div class="card mb-4">
+                <div class="card-header"><i class="fas fa-image"></i> 图片压缩设置</div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-check">
+                            <input type="checkbox" class="form-check-input" name="compression_enabled" {% if settings.image_compression.enabled %}checked{% endif %}> 启用图片压缩
+                        </label>
+                    </div>
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <label class="form-label">压缩阈值 (MB)</label>
+                            <input type="number" class="form-control" name="threshold_mb" value="{{ settings.image_compression.threshold_mb }}" step="0.1">
+                        </div>
+                        <div class="col-6 mb-3">
+                            <label class="form-label">压缩质量 (1-100)</label>
+                            <input type="number" class="form-control" name="quality" value="{{ settings.image_compression.quality }}" min="1" max="100">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card mb-4">
+                <div class="card-header"><i class="fas fa-globe"></i> 站点设置</div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label">站点名称</label>
+                        <input type="text" class="form-control" name="site_name" value="{{ settings.site.site_name }}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-check">
+                            <input type="checkbox" class="form-check-input" name="allow_registration" {% if settings.site.allow_registration %}checked{% endif %}> 允许新用户注册
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="card mb-4">
+                <div class="card-header"><i class="fas fa-box"></i> 商品发布设置</div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label">用户每日发布上限</label>
+                        <input type="number" class="form-control" name="daily_limit" value="{{ settings.product.daily_limit if settings.product and settings.product.daily_limit else 10 }}" min="1" max="100">
+                        <small class="text-muted">每位用户每天最多发布的商品数量</small>
+                    </div>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> 保存设置</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}发送站内信{% endblock %}
+{% block content %}
+<h2>发送站内信</h2>
+{% if receiver_id %}
+<div class="alert alert-info"><i class="fas fa-info-circle"></i> 正在发送给: {% for u in users %}{% if u.id == receiver_id %}{{ u.username }}{% endif %}{% endfor %}</div>
+{% endif %}
+<form method="post">
+    <div class="mb-3">
+        <label class="form-label">发送给</label>
+        <select class="form-select" name="receiver_id" {% if receiver_id %}disabled{% endif %} required>
+            <option value="">选择用户</option>
+            {% for u in users %}
+            {% if u.id != current_user.id %}
+            <option value="{{ u.id }}" {% if receiver_id == u.id %}selected{% endif %}>{{ u.username }}{% if u.nickname %}({{ u.nickname }}){% endif %}</option>
+            {% endif %}
+            {% endfor %}
+            {% if current_user.role == 'admin' %}
+            <option value="__all__">发送给所有人</option>
+            {% endif %}
+        </select>
+        {% if receiver_id %}<input type="hidden" name="receiver_id" value="{{ receiver_id }}">{% endif %}
+    </div>
+    <div class="mb-3">
+        <label class="form-label">标题</label>
+        <input type="text" class="form-control" name="title" required>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">内容</label>
+        <textarea class="form-control" name="content" rows="5" required></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">发送</button>
+</form>
+{% endblock %}

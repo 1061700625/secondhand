@@ -1,0 +1,93 @@
+{% extends "admin/index.html" %}
+
+{% block title %}举报管理{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h2 class="mb-4"><i class="fas fa-flag"></i> 举报管理</h2>
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    
+    {% if not reports %}
+        <div class="alert alert-info">暂无举报记录</div>
+    {% else %}
+        <div class="card">
+            <div class="card-body">
+                <table class="table table-hover">                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>商品</th>
+                            <th>举报人</th>
+                            <th>被举报卖家</th>
+                            <th>原因</th>
+                            <th>详情</th>
+                            <th>状态</th>
+                            <th>时间</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for report in reports %}
+                        <tr>
+                            <td>{{ report.id[:8] }}</td>
+                            <td>
+                                {% if report.product_id in products %}
+                                <a href="{{ url_for('product_detail', product_id=report.product_id) }}" target="_blank">
+                                    {{ products[report.product_id].title[:20] }}...
+                                </a>
+                                {% else %}商品已删除{% endif %}
+                            </td>
+                            <td>
+                                {% if report.reporter_id in users %}{{ users[report.reporter_id].username }}{% else %}未知{% endif %}
+                            </td>
+                            <td>
+                                {% if report.seller_id in users %}{{ users[report.seller_id].username }}{% else %}未知{% endif %}
+                            </td>
+                            <td>{{ report.reason }}</td>
+                            <td>{{ report.detail or '-' }}</td>
+                            <td>
+                                {% if report.status == 'pending' %}
+                                    <span class="badge bg-warning">待审核</span>
+                                {% elif report.status == 'valid' %}
+                                    <span class="badge bg-success">有效</span>
+                                {% elif report.status == 'invalid' %}
+                                    <span class="badge bg-secondary">无效</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ report.created_at[:10] }}</td>
+                            <td>
+                                {% if report.status == 'pending' %}
+                                <form method="POST" action="{{ url_for('admin_report_action', report_id=report.id) }}" class="d-inline">
+                                    <input type="hidden" name="action" value="valid">
+                                    <button type="submit" class="btn btn-success btn-sm" onclick="return confirm('确认下架该商品?')">下架商品</button>
+                                </form>
+                                <form method="POST" action="{{ url_for('admin_report_action', report_id=report.id) }}" class="d-inline">
+                                    <input type="hidden" name="action" value="ban_seller">
+                                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('确认封号该卖家?')">封号</button>
+                                </form>
+                                <form method="POST" action="{{ url_for('admin_report_action', report_id=report.id) }}" class="d-inline">
+                                    <input type="hidden" name="action" value="invalid">
+                                    <button type="submit" class="btn btn-secondary btn-sm">无效</button>
+                                </form>
+                                {% else %}
+                                    已处理
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

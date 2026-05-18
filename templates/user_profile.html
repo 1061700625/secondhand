@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}{{ user. username }}的主页 - 二手平台{% endblock %}
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white"><h5 class="mb-0">个人资料</h5></div>
+                <div class="card-body text-center">
+                    <i class="fas fa-user-circle fa-5x text-secondary mb-3"></i>
+                    <h4>{{ user.username }}</h4>
+                    <p>{% if user.role == 'admin' %}<span class="badge bg-danger">管理员</span>{% elif user.role == 'moderator' %}<span class="badge bg-warning">审核员</span>{% else %}<span class="badge bg-info">用户</span>{% endif %}</p>
+                    {% if user.student_verify_status == "approved" %}<p><span class="badge bg-success">✓ 学生认证</span></p>{% endif %}
+                    {% if current_user.is_authenticated and current_user.id == user.id and user.student_verify_status != "approved" %}
+                    <a href="{{ url_for("student_verify") }}" class="btn btn-outline-primary btn-sm mb-2">申请学生认证</a>
+                    {% endif %}
+                    <p class="small text-muted">注册: {{ user.created_at[:10] if user.created_at else '未知' }}</p>
+                    <hr><h6>个人简介</h6>
+                    <p>{% if user.intro %}{{ user.intro }}{% else %}<span class="text-muted">暂无简介</span>{% endif %}</p>
+                </div>
+            </div>
+            {% if current_user.is_authenticated and current_user.id == user_id %}
+            <div class="card mt-3">
+                <div class="card-header">编辑简介</div>
+                <div class="card-body">
+                    <form method="post" action="{{ url_for('edit_intro') }}">
+                        <textarea name="intro" class="form-control mb-2" rows="3" placeholder="介绍自己...">{{ user.intro or '' }}</textarea>
+                        <button class="btn btn-primary w-100">保存</button>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white"><h5 class="mb-0">TA的商品 ({{ products|length }})</h5></div>
+                <div class="card-body">
+                    {% if products %}
+                    <div class="row">
+                        {% for p in products %}
+                        <div class="col-6 col-md-4 mb-3">
+                            <div class="card h-100">
+                                {% if p.cover_image %}<img src="{{ url_for('static', filename=p.cover_image) }}" class="card-img-top" style="height:150px;object-fit:cover;">{% else %}<div class="bg-secondary d-flex align-items-center justify-content-center" style="height:150px;"><i class="fas fa-image text-white fa-2x"></i></div>{% endif %}
+                                <div class="card-body p-2">
+                                    <h6 class="mb-1">{{ p.title }}</h6>
+                                    <p class="text-primary fw-bold mb-1">¥{{ p.price }}</p>
+                                    {% if p.status == 'sold' %}<span class="badge bg-secondary">已售出</span>{% elif p.status == 'hidden' %}<span class="badge bg-dark">已下架</span>{% endif %}
+                                </div>
+                                <a href="{{ url_for('product_detail', product_id=p.id) }}" class="stretched-link"></a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}<p class="text-muted text-center">暂无商品</p>{% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

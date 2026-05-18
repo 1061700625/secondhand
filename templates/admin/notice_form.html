@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}{% if notice %}编辑公告{% else %}发布公告{% endif %}{% endblock %}
+{% block content %}
+<h2><i class="fas fa-bullhorn"></i> {% if notice %}编辑公告{% else %}发布公告{% endif %}</h2>
+<form method="post">
+    <div class="mb-3">
+        <label class="form-label">标题</label>
+        <input type="text" class="form-control" name="title" value="{{ notice.title if notice else '' }}" required>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">内容</label>
+        <textarea class="form-control" name="content" rows="5" required>{{ notice.content if notice else '' }}</textarea>
+    </div>
+    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> 发布</button>
+</form>
+{% endblock %}

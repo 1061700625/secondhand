@@ -1,0 +1,6 @@
+{% extends "base. html" %}
+{% block title %}商品管理{% endblock %}
+{% block content %}
+<h2><i class="fas fa-boxes"></i> 商品管理</h2>
+{% if products %}
+<table class="table table-hover mt-3">    <thead>        <tr><th>标题</th><th>卖家</th><th>类别</th><th>价格</th><th>状态</th><th>发布时间</th><th>操作</th></tr>    </thead>    <tbody>        {% for p in products %}        <tr>            <td><a href="{{ url_for('product_detail', product_id=p.id) }}">{{ p.title }}</a></td>            <td>{{ p.seller_username }}</td>            <td><span class="badge bg-info">{{ p.category }}</span></td>            <td>¥{{ p.price }}</td>            <td>{% if p.status == 'pending' %}<span class="badge bg-warning">待审核</span>{% elif p.status == 'approved' %}<span class="badge bg-success">已通过</span>{% elif p.status == 'rejected' %}<span class="badge bg-danger">已拒绝</span>{% endif %}</td>            <td>{{ p.created_at[:10] }}</td>            <td><form method="post" action="{{ url_for('admin_delete_product', product_id=p.id) }}" style="display:inline"><button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('确认删除?')"><i class="fas fa-trash"></i></button></form></td>        </tr>        {% endfor %}    </tbody></table>{% else %}<div class="alert alert-info">暂无商品</div>{% endif %}{% endblock %}

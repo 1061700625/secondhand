@@ -1,0 +1,15 @@
+[
+  {
+    "id": "b13a0a09-369d-4b270-b8a6-5da8f8cccf57",
+    "username": "admin",
+    "nickname": "管理员",
+    "email": "admin@example.com",
+    "password": "scrypt:32768:8:1$illhrd0RBMhs0Ngy$17eeefd603191b9c5a736a5850bdb19e7419ccac36d4f5f2cf59adb6f47f8c14b6c25756977509562e8867f88b7066653b7a1b78c4b66fd394d2dc2386a1a51b",
+    "role": "admin",
+    "intro": "",
+    "gender": "male",
+    "location": "",
+    "created_at": "2026-04-23T01:30:26",
+    "is_active": true
+  }
+]

@@ -1,0 +1,16 @@
+{
+  "image_compression": {
+    "enabled": true,
+    "threshold_mb": 2.0,
+    "quality": 80,
+    "max_width": 1920,
+    "max_height": 1920
+  },
+  "site": {
+    "site_name": "二手商品交易平台",
+    "allow_registration": true
+  },
+  "product": {
+    "daily_limit": 10
+  }
+}

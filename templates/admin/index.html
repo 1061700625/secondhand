@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}管理后台{% endblock %}
+{% block content %}
+<h2><i class="fas fa-shield-alt"></i> 管理后台</h2>
+<div class="row mb-4 admin-stats">
+    <div class="col-3"><div class="card"><div class="card-body"><div class="number">{{ stats.total_users }}</div><p>总用户数</p></div></div></div>
+    <div class="col-3"><div class="card"><div class="card-body"><div class="number">{{ stats.total_products }}</div><p>总商品数</p></div></div></div>
+    <div class="col-3"><div class="card"><div class="card-body"><div class="number text-warning">{{ stats.pending_products }}</div><p>待审核</p></div></div></div>
+    <div class="col-3"><div class="card"><div class="card-body"><div class="number text-success">{{ stats.approved_products }}</div><p>已通过</p></div></div></div>
+</div>
+<h4>待审核商品</h4>
+{% if pending_products %}
+<table class="table">
+    <thead><tr><th>标题</th><th>卖家</th><th>类别</th><th>价格</th><th>提交时间</th><th>操作</th></tr></thead>
+    <tbody>
+        {% for p in pending_products %}
+        <tr>
+            <td><a href="{{ url_for('product_detail', product_id=p.id) }}">{{ p.title }}</a></td>
+            <td>{{ p.seller_username }}</td>
+            <td>{{ p.category }}</td>
+            <td>¥{{ p.price }}</td>
+            <td>{{ p.created_at[:16] }}</td>
+            <td><a href="{{ url_for('admin_approvals') }}" class="btn btn-sm btn-primary">审核</a></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p class="text-muted">暂无待审核商品</p>
+{% endif %}
+{% endblock %}
